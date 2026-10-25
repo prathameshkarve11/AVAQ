@@ -1,4 +1,5 @@
 .venv/
+AVAQ_TTS/
 __pycache__/
 *.pyc
 
@@ -11,3 +12,4 @@ __pycache__/
 runs/
 
 .env
+kokoro-v1.0.onnx
