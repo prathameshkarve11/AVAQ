@@ -1,4 +1,5 @@
 import cv2
+from collections import deque
 import ollama
 import sounddevice as sd
 import numpy as np
@@ -92,10 +93,13 @@ print("All models loaded!")
 cap = cv2.VideoCapture(0)
 latest_frame = None
 detected_objects = []
+
+# Remember the last 5 seconds of camera frames
+frame_buffer = deque(maxlen=150)
+
 running = True
 
 listen_requested = threading.Event()
-
 
 # ==========================================
 # LIVE VISION
@@ -106,6 +110,12 @@ def vision_loop():
     global latest_frame
     global detected_objects
     global running
+    cv2.namedWindow("AVAQ V3", cv2.WINDOW_NORMAL)
+    # cv2.setWindowProperty(
+    #     "AVAQ V3",
+    #     cv2.WND_PROP_FULLSCREEN,
+    #     cv2.WINDOW_FULLSCREEN
+    # )
 
     while running:
 
@@ -139,6 +149,7 @@ def vision_loop():
         detected_objects = list(set(objects))
 
         latest_frame = frame.copy()
+        frame_buffer.append(frame.copy())
 
         annotated = result.plot()
 
@@ -158,14 +169,11 @@ def vision_loop():
         )
 
         key = cv2.waitKey(1) & 0xFF
+
         if key == ord(" "):
             listen_requested.set()
+
         elif key == ord("q"):
-            running = False
-            break
-
-
-        if key == ord("q"):
             running = False
             break
 
@@ -452,3 +460,5 @@ finally:
 
 
 # work done 
+
+
